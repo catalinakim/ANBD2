@@ -454,7 +454,9 @@ public class AnbdDAO extends DbInfo{
 			String selectSql = "";
 			selectSql += "SELECT no, menu, title, photo, wdate, status, content ";
 			selectSql += "FROM board ";
-			selectSql += "ORDER BY no desc ";
+			selectSql += "LEFT JOIN juso j ";
+			selectSql += "ON b.jusoNo = j.jusoNo ";
+					selectSql += "ORDER BY no desc ";
 			System.out.println(selectSql);
 
 			db.rs = db.state.executeQuery(selectSql);
@@ -473,6 +475,8 @@ public class AnbdDAO extends DbInfo{
 					vo.setWdate(db.rs.getString("wdate"));
 					vo.setStatus(db.rs.getString("status"));
 					vo.setContent(db.rs.getString("content"));
+					vo.setSido(rs.getString("sido"));
+					vo.setSigun(rs.getString("sigun"));
 					
 					//세팅한 no, menu 등의 정보를 blist에 담겠다
 					blist.add(vo);
@@ -788,11 +792,6 @@ public class AnbdDAO extends DbInfo{
 		}
 		return true;
 	}
-	/* ******************************************************
-	 * 
-	 * 메뉴 이동 전체 글 개수 [종료]
-	 * 
-	 ****************************************************** */
 	
 	
 	/* ******************************************************
@@ -876,7 +875,7 @@ public class AnbdDAO extends DbInfo{
 			conClose();
 		}
 		return true;
-	}//============selBoardListMenu METHOD
+	}
 	
 	/* ******************************************************
 	 * 
@@ -926,11 +925,6 @@ s	 ****************************************************** */
 		}
 		return true;
 	}
-	/* ******************************************************
-	 * 
-	 * 글쓰기 주소 가져오기 [종료]
-	 * 
-	 ****************************************************** */
 	
 	/* ******************************************************
 	 * 
@@ -985,10 +979,5 @@ s	 ****************************************************** */
 		return true;
 	}
 	
-	/* ******************************************************
-	 * 
-	 * 글쓰기 주소 가져오기 [종료]
-	 * 
-	 ****************************************************** */
 	
 }

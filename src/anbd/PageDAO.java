@@ -72,9 +72,12 @@ public class PageDAO extends DbInfo{
 		rsClose();
 		pstateClose();
 		
-		SQL  = "select no, id, email, menu, status, title, photo, wdate from board b ";
+		SQL  = "select b.no, u.id, u.email, b.menu, b.status, b.title, b.photo, b.wdate, j.sido, j.sigun ";
+		SQL += "FROM board b ";
 		SQL += "LEFT JOIN user u ";
 		SQL += "ON b.userNo = u.userNo ";
+		SQL += "LEFT JOIN juso j ";
+		SQL += "ON b.jusoNo = j.jusoNo ";
 //		if(mKey==null) { 						   //검색만
 //		}else if( mKey!=null || !mKey.equals("")){ //검색어가 있으면
 //			SQL += "where "+option+" like '%" + mKey +"%' ";
@@ -107,6 +110,8 @@ public class PageDAO extends DbInfo{
 				vo.setTitle(rs.getString("title"));
 				vo.setPhoto(rs.getString("photo")); 
 				vo.setWdate(rs.getString("wdate"));
+				vo.setSido(rs.getString("sido"));
+				vo.setSigun(rs.getString("sigun"));
 				mainList.add(vo);
 			}
 		}catch (Exception e) {

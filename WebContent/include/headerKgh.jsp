@@ -44,7 +44,7 @@
 	<!-- Header Section -->
 	<header class="header-section">
 	    <!-- 로고 -->
-		<a href="../main/mainSearchKgh.jsp" class="site-logo">
+		<a href="../main/main.jsp" class="site-logo">
 			<img src="../img/logo.png" alt="메인로고입니다">
 		</a>
 
@@ -52,33 +52,44 @@
 			<!-- 상단 메뉴 -->
 			<ul class="main-menu">
 				<!-- class="active" -->
-				<!-- DB 연결 후 파라미터 줘야함 ../main/main.jsp&menu=share 
-				<li><a href="../main/main.jsp">아껴쓰고 <b>나눠쓰기</b></a></li>
-				<li><a href="../main/main.jsp">바꿔쓰고 <b>다시쓰기</b></a></li>
-				<li><a href="../main/mainMenuKgh.jsp?menu=share">아껴쓰고 <b>나눠쓰기</b></a></li>
-				<li><a href="../main/mainMenuKgh.jsp?menu=reuse">바꿔쓰고 <b>다시쓰기</b></a></li>-->
-				<li><a href="../main/mainSearchKgh.jsp?menu=share">아껴쓰고 <b>나눠쓰기</b></a></li>
-				<li><a href="../main/mainSearchKgh.jsp?menu=reuse">바꿔쓰고 <b>다시쓰기</b></a></li>
+				<!-- DB 연결 후 파라미터 줘야함 ../main/main.jsp&menu=share -->
+				<li><a href="../main/main.jsp?menu=share">아껴쓰고 <b>나눠쓰기</b></a></li>
+				<li><a href="../main/main.jsp?menu=reuse">바꿔쓰고 <b>다시쓰기</b></a></li>
 			</ul>
 			<!-- 로그인, 회원가입 -->
 			<div class="header-right">
 				<div class="user-panel">
-			<%
-				//세션 변수에 저장된 userId값이 비어있으면 로그인 안한것
-				if(session.getAttribute("loginId")==null){
-					%>
+			
+			<c:choose>
+				<c:when test="${sessionScope.loginId ne null}">
+					<span>${sessionScope.loginId}님 반갑습니다.</span>&nbsp;&nbsp;
+          <% session.setMaxInactiveInterval(60*60); %>
+					<a href="../common/logout.jsp" class="register">로그아웃</a>
+				</c:when>
+				<c:when test="${sessionScope.loginId eq null}">
 					<a href="../common/join.jsp" class="login">회원가입</a>
 					<a href="../common/login.jsp" class="register">로그인</a>
+
+				</c:when>
+			</c:choose>
+
 					<%
+          /*
 				}else{
 					String loginId = (String)session.getAttribute("loginId");
-					//out.print(session.getAttribute("loginId"));
+					
+					//세션 시간 설정 60초*60 = 1시간
+					session.setMaxInactiveInterval(60*60);
+          */
 					%>
-					<span><%=loginId %>님 반갑습니다.</span>&nbsp;&nbsp;
-					<a href="../common/logout.jsp" class="login">로그아웃</a>
+          <!--
+					<span><loginId>님 반갑습니다.</span>&nbsp;&nbsp;
+					<span><%--=loginId --%>님 반갑습니다.</span>&nbsp;&nbsp;
+					<a href="../common/logout.jsp" class="login">로그아웃</a> -->
 					<%
-				}
+				//}
 			%>
+
 				</div>
 			</div>
 		</nav>

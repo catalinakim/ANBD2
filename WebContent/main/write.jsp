@@ -56,14 +56,14 @@
 				<td>제목</td>
 				<td>
 					<input type="text" placeholder="제목을 입력하세요" id="title" name="title" maxlength="30" 
-						    autofocus style="width:580px; ime-mode:active;" value="제목입니다">
+						    autofocus style="width:580px; ime-mode:active;">
 				</td>
 			</tr>
 			
 			<tr>
 				<td>내용</td>
 				<td>
-					<textarea style="width:580px" id="content" name="content" placeholder="내용을 입력하세요">내용이에요!</textarea>
+					<textarea style="width:580px" id="content" name="content" placeholder="내용을 입력하세요"></textarea>
 				</td>
 			</tr>
 			

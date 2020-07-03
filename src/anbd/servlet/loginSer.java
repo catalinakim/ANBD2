@@ -40,6 +40,7 @@ public class loginSer extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		out.println("doPost test");
 		
+		request.setCharacterEncoding("utf-8"); //한글깨짐현상 해결
 		response.setContentType("text/html; charset=utf-8"); 
 		response.setCharacterEncoding("utf-8"); //한글깨짐현상 해결
 		
