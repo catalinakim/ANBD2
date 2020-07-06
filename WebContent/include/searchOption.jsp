@@ -1,10 +1,26 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<jsp:useBean id="webutil2" class="anbd.WebUtil" scope="page"/>
 <%
+	webutil2.Init(request);
+	
+	String menu   = webutil2._S("menu","title");
+	String option = webutil2._S("option","title");
+	String mKey2  = webutil2._S("key","");
+	
+	/*선생님께서 알려주시기 전 코드
 	String menu = request.getParameter("menu");
 	if(menu==null){
 		menu="";
 	}
+	String mKey2 = request.getParameter("key"); 
+	if(mKey2==null){ //그냥 검색안하면 null
+		mKey2="";
+	}
+	String option = request.getParameter("option"); 
+	if(option==null){
+		option="title";
+	}*/
 %>
 <body>
 	<!--  <div class="container">-->
@@ -19,7 +35,7 @@
 				    
 					<!-- radio는 style.css에서 hidden되있음 -->
 					<div class="st-item">
-						<input type="radio" name="option" id="title" value="title" checked>
+						<input type="radio" name="option" id="title" value="title">
 						<label for="title">제목</label>
 					</div>
 					<div class="st-item">
@@ -67,3 +83,19 @@
 			</form>
 		</div>
 	<!-- </div>-->
+<script language="javascript">
+	var key2 = '<%=mKey2%>';
+	var option = '<%=option%>';
+	$(document).ready(function() {
+		if( !key2==""){ 			//검색어가 있으면
+			$('#key').val(key2); //검색칸에 검색어 넣기
+		}
+		
+		if(option==""){
+			option ='title';
+		}
+		console.log("옵션: ["+option+"]");
+		
+		$('input:radio[name=option]:input[value='+ option +']').attr("checked", true);
+	});
+</script>

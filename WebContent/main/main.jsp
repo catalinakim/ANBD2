@@ -3,11 +3,7 @@
 <%@include file="../include/fix.jsp"%>
 <%@include file="../include/searchOption.jsp"%>
 <%@ page import="java.net.URLEncoder" %> <!-- 브라우저 때문에.. -->
-
 <jsp:useBean id="pg" class="anbd.PageDAO" scope="page"/>
-<script>
-	document.title="ANBD | 아나바다-목록";
-</script>
 <% 
 request.setCharacterEncoding("utf-8");
 
@@ -23,10 +19,27 @@ if(mTemp != null){ //키워드 검색하면 무조건 1p
 	currentPage = Integer.parseInt(mTemp);
 }
 
-String mKey = request.getParameter("key"); //-> 메소드에서도 받기
+currentPage = webutil._I("page","1");
+String mKey = webutil._S("key","");
+String mEncodeKey = webutil._E("key","");
+
+/*선생님께서 알려주시기 전 코드
+String mKey = request.getParameter("key"); 
 if(mKey==null){ //그냥 검색안하면 null
 	mKey="";
 }
+String mEncodeKey = URLEncoder.encode(mKey, "UTF-8"); //url에 검색어 한글을 %로 바꿔줌(인코딩)
+request.setAttribute("key", mEncodeKey);*/
+%>
+<script language="javascript">
+	var key = '<%=mKey%>';
+	if( key==""){ 	//검색어가 없으면
+		document.title="ANBD | 아나바다-목록";
+	}else{
+		document.title="ANBD | '"+ key +"'검색 결과";
+	}
+</script>
+<%
 //String menu = request.getParameter("menu"); //searchOption.jsp에 있어 쓰면 중복
 
 //시작행 번호 = (현재 페이지번호 - 1) * 페이지당 출력 할 갯수
@@ -100,7 +113,7 @@ seqNo       = startRow + 1;				     //페이지 목록에 게시글 일련번호
 						<td>[${pageList.menu}]</td>
 						<td>
 						<c:if test="${pageList.menu eq '아나'}">
-							<a href="view.jsp?menu=share&no=${pageList.no}">
+							<a href="javascript:doGoPage('view.jsp','<%= currentPage %>','${pageList.no}');">
 							<c:choose>
 								<c:when test="${pageList.status eq 'done'}">
 									<span id="status">[거래완료]</span>
@@ -122,7 +135,7 @@ seqNo       = startRow + 1;				     //페이지 목록에 게시글 일련번호
 							</a>
 						</c:if>
 						<c:if test="${pageList.menu eq '바다'}">
-							<a href="view.jsp?menu=reuse&no=${pageList.no}">
+							<a href="view.jsp?menu=reuse&no=${pageList.no}&key=${key}">
 							<c:choose>
 								<c:when test="${pageList.status eq 'done'}">
 									<span id="status">[거래완료]</span>
@@ -188,37 +201,54 @@ seqNo       = startRow + 1;				     //페이지 목록에 게시글 일련번호
 		endBlock = maxPageNo; //maxPageNo+1
 	}
 	
-	String mEncodeKey = URLEncoder.encode(mKey, "UTF-8"); //url에 검색어 한글을 %로 바꿔줌(인코딩)
+
 
 	//첫페이지는 이전블럭 없애기
 	if(currentPage >10) 
 	{ 
 		%><!--<a href="list.jsp?key=<%=mEncodeKey%>&page=<%= startBlock - 10 %>">[이전블럭]</a>--><% 
-		%><a href="javascript:doGoPage(<%= startBlock - 10 %>);"> &lt;이전 </a><% 
+		%><a href="javascript:doGoPage('main.jsp','<%= startBlock - 10 %>','');"> &lt;이전 </a><% 
 	}
 
 	for(int i=startBlock; i<=endBlock; i++)
 	{
-		if(i==currentPage){
-			%><a href="main.jsp?key=<%=mEncodeKey%>&page=<%= i %>" class="active"> <%= i %>. </a> <%
+		if(i==currentPage)
+		{
+			%><a href="javascript:doGoPage('main.jsp','<%= i %>','');" class="active"> <%= i %>. </a> <%
 		}else{
-			%><a href="main.jsp?key=<%=mEncodeKey%>&page=<%= i %>"> <%= i %>. </a> <%
+			%><a href="javascript:doGoPage('main.jsp','<%= i %>','');"> <%= i %>. </a> <%
 		}
 	}
 
 	//마지막블럭 다음은 안나오게
 	if ( endBlock < maxPageNo ) //currentPage < maxPageNo-10
 	{
-		%><a href="main.jsp?key=<%=mEncodeKey%>&page=<%= endBlock+1 %>"> 다음&gt; </a><%
+		%><a href="javascript:doGoPage('main.jsp','<%= endBlock+1 %>','');"> 다음&gt; </a><%
 	}
 %>
 </div>
 
 <script language="javascript">
-	function doGoPage(pageno){
-		document.pageForm.page.value = pageno; //페이지 번호 할당
-		document.pageForm.submit();
+	
+	function doGoPage(url,pageno,seqno)
+	{
+		var f = document.pageForm;
+		var mParam = "";
+		
+		mParam += "page=" + pageno;
+		mParam += "&";
+		mParam += "menu=" + f.smenu.value;
+		mParam += "&";
+		mParam += "option=" + f.soption.value;
+		mParam += "&";
+		mParam += "key=" + f.skey.value;	
+		mParam += "&";
+		mParam += "no=" + seqno;		
+		
+		page = url + "?" + mParam;
+		document.location = page;
 	}
+	
 	function doAlert()
 	{
 		alert("글쓰기는 로그인 후 가능합니다");
@@ -227,8 +257,10 @@ seqNo       = startRow + 1;				     //페이지 목록에 게시글 일련번호
 </script>
 
 <form id="pageForm" name="pageForm" method="post" action="main.jsp">
-	<input type="hidden" id="page" name="page" value="">
-	<input type="hidden" id="kw" name="kw" value="<%=mKey%>">
+	<input type="hidden" id="spage" name="page" value="">
+	<input type="hidden" id="smenu" name="menu" value="<%=menu%>">
+	<input type="hidden" id="soption" name="soption" value="<%=option%>">
+	<input type="hidden" id="skey" name="skey" value="<%=mEncodeKey%>">
 </form>
 
 <%@include file="../include/footer.jsp"%>

@@ -7,7 +7,10 @@
 <jsp:useBean id="vo" class="anbd.AnbdVO" scope="page"/>
 <jsp:useBean id="db" class="anbd.DbInfo" scope="page"/>
 <jsp:useBean id="dao" class="anbd.AnbdDAO" scope="page"/>
-
+<jsp:useBean id="webutil" class="anbd.WebUtil" scope="page"/>
+<%
+webutil.Init(request);
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>

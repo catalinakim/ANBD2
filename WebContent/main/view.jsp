@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@include file="../include/header.jsp"%>
 <%@include file="../include/fix.jsp"%>
+<%@ page import="java.net.URLEncoder" %> <!-- 브라우저 때문에.. -->
 <%@ page import="api.*"%> 
 <style>
 	h3{ margin-bottom: 10px;}
 	b#status{ color:gray; }
 	#refresh{ font-size: 10pt; color: #565855; }
-	#showEmail, #confirm{ border:0; background-color: #D3D3D3; }
+	#showEmail, #confirm, #cancel{ font-size: 11pt; border:0; background-color: #D3D3D3; }
 </style>
 <div class="container" id="view">
 	<% 
@@ -53,12 +54,13 @@
 		<form id="capForm" onsubmit="return false"><!-- 엔터치면 오류나므로 막음 -->
 			<span>이메일 </span>
 			<span id="email"><%= vo.getEmail() %></span>
-			<input type="button" id="showEmail" value="이메일 보기"/>
+			<input type="button" id="showEmail" value="이메일주소 보기"/>
 			<input type="hidden" id="key" name="key">
 			<span><img id="captchar" src=""></span>
 		   <input type="text" size="15" id="userInput" name="userInput"/>
 		   <span id="refresh" style="cursor:pointer"><img src="..\img\Refresh19px.png">새로고침</span>
 		   <input type="button" id="confirm" value="확인"/>
+		   <input type="button" id="cancel" value="취소"/>
 	   </form>
 	</p>
 	<p>
@@ -114,6 +116,39 @@
 		<input type="text" placeholder="로그인 후 댓글 입력" id="comment" name="comment" style="width:85%" onkeyup="pressEnter();">
 		<button type="button" class="readmore-btn" id="cWrite" style="float:none;">댓글쓰기</button>
 	</form>
+	<%
+	String pageno = request.getParameter("page");
+	String menu = request.getParameter("menu"); 
+	String option = request.getParameter("option"); 
+	String key = request.getParameter("key"); 
+	key = URLEncoder.encode(key, "UTF-8");
+	%>
+	<script type="text/javascript">
+	function doGoPage(url)
+	{
+		var f = document.pageForm;
+		var mParam = "";
+		
+		mParam += "page=" + f.spage.value;
+		mParam += "&";
+		mParam += "menu=" + f.smenu.value;
+		mParam += "&";
+		mParam += "option=" + f.soption.value;
+		mParam += "&";
+		mParam += "key=" + f.skey.value;	
+		mParam += "&";
+		mParam += "no=" + f.sno.value;
+		page = url + "?" + mParam;
+		document.location = page;
+	}	
+	</script>
+	<form id="pageForm" name="pageForm" method="post" action="main.jsp">
+		<input type="hidden" id="sno" name="sno" value="<%= hereNo %>">
+		<input type="hidden" id="spage" name="spage" value="<%= pageno %>">
+		<input type="hidden" id="smenu" name="smenu" value="<%=menu%>">
+		<input type="hidden" id="soption" name="soption" value="<%=option%>">
+		<input type="hidden" id="skey" name="skey" value="<%=key%>">
+	</form>	
 	<% 
 		//댓글 영역_v2 - jstl 잘 안됨..if문에서 jsp의 loginUserNo 번호를 못읽어...
 		ArrayList<AnbdVO> coList = dao.selViewComment(pNo);
@@ -139,9 +174,9 @@
 			<div id="div"></div>
 </div><!--container 클래스 마지막-->
 <div class="Lst">
-	<button class="site-btn" id="before" onclick="location.href='viewBefore.jsp?no=<%=hereNo%>'">이전글</button>
-	<button class="site-btn" id="list" onclick="location.href='main.jsp'">목록</button>
-	<button class="site-btn" id="after" onclick="location.href='viewAfter.jsp?no=<%=hereNo%>'">다음글</button>
+	<button class="site-btn" id="before" onclick="javascript:doGoPage('viewBefore.jsp');">이전글</button>
+	<button class="site-btn" id="list" onclick="javascript:doGoPage('main.jsp');">목록</button>
+	<button class="site-btn" id="after" onclick="javascript:doGoPage('viewAfter.jsp');">다음글</button>
 </div>
 <%@include file="../include/footer.jsp"%>
 <script type="text/javascript"> 
@@ -176,7 +211,7 @@
 $(document).ready(function(){
 	//캡차 시작
 	var key = ''; //캡차 생성시 발급되는 키
-	$("#email, #userInput, #confirm, #refresh").hide();
+	$("#email, #userInput, #confirm, #refresh, #cancel").hide();
 	//이메일보기 클릭시 v2 [시작] Ajax로 이미지 생성
 	$("#showEmail").click(function(){ 
 		//로그인 안한 경우 alert
@@ -202,7 +237,7 @@ $(document).ready(function(){
 				key = result.key+"";
 				$("#captchar").attr("src", pathFileName); //이미지에 넣기
 				$("#showEmail").hide();
-				$("#userInput, #confirm, #refresh").show();
+				$("#userInput, #confirm, #refresh, #cancel").show();
 				$("#key").val(key); 
 			},error: function(xhr, stat, err){
 				alert("오류: "+err);
@@ -242,7 +277,7 @@ $(document).ready(function(){
 			   //alert(JSON.stringify(data));
 			   var sResult = JSON.stringify(data.result);//object to string
 			   if(sResult=='true'){
-				   $("#userInput, #confirm, #captchar, #refresh").hide();
+				   $("#userInput, #confirm, #captchar, #refresh, #cancel").hide();
 				   $("#email").show();
 			   }else if(sResult=='false'){
 				   alert("입력값이 일치하지 않습니다.\n 다시 입력해주세요");
@@ -254,6 +289,11 @@ $(document).ready(function(){
 			}
 	   })
 	});//입력값 확인 [종료]
+	//캡차 취소 클릭 [시작]
+	$("#cancel").click(function(){
+		$("#captchar, #userInput, #confirm, #refresh, #cancel").hide();
+		$("#showEmail").show();
+	});//캡차 취소 클릭 [종료]
 	$("#done").click(function(){ //거래완료 클릭시  -나중에는 get.parameter받는 변수로?
 		location.href="viewDone.jsp?no=<%=vo.getNo() %>"; 
 	});
