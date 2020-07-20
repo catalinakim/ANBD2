@@ -7,6 +7,7 @@
 <jsp:useBean id="vo" class="anbd.AnbdVO" scope="page"/>
 <jsp:useBean id="db" class="anbd.DbInfo" scope="page"/>
 <jsp:useBean id="dao" class="anbd.AnbdDAO" scope="page"/>
+<jsp:useBean id="webutil" class="anbd.WebUtil" scope="page"/>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -53,8 +54,8 @@
 			<ul class="main-menu">
 				<!-- class="active" -->
 				<!-- DB 연결 후 파라미터 줘야함 ../main/main.jsp&menu=share -->
-				<li><a href="../main/main.jsp?menu=share">아껴쓰고 <b>나눠쓰기</b></a></li>
-				<li><a href="../main/main.jsp?menu=reuse">바꿔쓰고 <b>다시쓰기</b></a></li>
+				<li><a href="../main/mainSearchKgh.jsp?menu=share">아껴쓰고 <b>나눠쓰기</b></a></li>
+				<li><a href="../main/mainSearchKgh.jsp?menu=reuse">바꿔쓰고 <b>다시쓰기</b></a></li>
 			</ul>
 			<!-- 로그인, 회원가입 -->
 			<div class="header-right">

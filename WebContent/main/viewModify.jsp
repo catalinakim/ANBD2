@@ -2,14 +2,8 @@
 <%@include file="../include/header.jsp"%>
 <%@include file="../include/fix.jsp"%>
 <style>
-	#share, #reuse
-	{
-		width:130px
-	}
-	table
-	{
-		margin:auto;
-	}
+	#share, #reuse{ width:130px; }
+	table{ margin:auto; }
 	input [type=text],
 	textarea {width:580px !important;}
 	td.moreFile span{
@@ -33,9 +27,58 @@
 	<% 
 	int hereNo = Integer.parseInt(request.getParameter("no"));
 	dao.selViewBoard(vo, hereNo);
+	
+	webutil.Init(request);
+	int pageno = webutil._I("page","1");
+	String menu   = webutil._S("menu","");
+	String option = webutil._S("option","title");
+	String Key = webutil._S("key","");
+	String mEncodeKey = webutil._E("key","");
+	Integer jusoNo = webutil._I("jusoNo","0");
+	String noDoneYN = webutil._S("noDone","N");
 	%>
+	<script type="text/javascript">
+	function doGoPage(url){
+		var f = document.pageForm;
+		var mParam  = "";
+			mParam += "page=" + f.spage.value;
+			mParam += "&";
+			mParam += "menu=" + f.smenu.value;
+			mParam += "&";
+			mParam += "option=" + f.soption.value;
+			mParam += "&";
+			mParam += "key=" + f.skey.value;	
+			mParam += "&";
+			mParam += "no=" + f.sno.value;
+			mParam += "&";
+			mParam += "jusoNo=" + f.sjusoNo.value;
+			mParam += "&";
+			mParam += "noDone=" + f.snoDone.value;
+			page = url + "?" + mParam;
+			//document.location = page;
+			document.modify.action = page;
+			document.modify.submit();  
+	}	
+	</script>
+	<form id="pageForm" name="pageForm" method="post" action="main.jsp">
+		<input type="hidden" id="sno" name="sno" value="<%= hereNo %>">
+		<input type="hidden" id="spage" name="spage" value="<%= pageno %>">
+		<input type="hidden" id="smenu" name="smenu" value="<%=menu%>">
+		<input type="hidden" id="soption" name="soption" value="<%=option%>">
+		<input type="hidden" id="skey" name="skey" value="<%=mEncodeKey%>">
+		<input type="hidden" id="sjusoNo" name="sjusoNo" value="<%=jusoNo%>">
+		<input type="hidden" id="snoDone" name="snoDone" value="<%=noDoneYN%>">
+	</form>	
+<!-- action="viewModifyOk.jsp?no=<%--=hereNo--%>"  //mParam
+	  action="javascript:doGoPage('viewModifyOk.jsp');"
+-->
 <form class="contact-form" id="modify" name="modify" enctype="multipart/form-data" 
-		method="post" action="viewModifyOk.jsp?no=<%=hereNo%>">
+		  method="post" action="javascript:doGoPage('viewModifyOk.jsp');">
+	<input type="hidden" id="sno" name="no" value="<%= hereNo %>">
+	<input type="hidden" id="spage" name="page" value="<%= pageno %>">
+	<input type="hidden" id="smenu" name="menu" value="<%=menu%>">
+	<input type="hidden" id="soption" name="option" value="<%=option%>">
+	<input type="hidden" id="skey" name="key" value="<%=mEncodeKey%>">
 	<div class="container" id="Wrt">
 		<!--테이블 형식 본문-->
 		<table>
@@ -45,8 +88,8 @@
 					<div class="search-type2">
 					 	<div class="st-item2">
 					 		<%
-					 		String menu = vo.getMenu();
-							switch(menu) {
+					 		String getMenu = vo.getMenu();
+							switch(getMenu) {
 							case "아나":
 								%>
 								<input type="radio" name="menu" value="아나" id="share" checked> 
@@ -127,25 +170,25 @@
 	</div>
 </form>
 <div class="Lst">
-	<button class="site-btn" id="list" onclick="location.href='main.jsp'">목록</button>
+	<!-- button class="site-btn" id="list" onclick="location.href='main.jsp'">목록</button> -->
+	<button class="site-btn" id="list" onclick="javascript:doGoPage('main.jsp');">목록</button>
 </div>
-<script>
+<script type="text/javascript">
 document.title="ANBD | 아나바다-글수정";
 	$(document).ready(function()
 	{
-		$("#save").click(function()
-		{
+		$("#save").click(function(){
 			var title = $("#title").val(); 
 			var content = $("#content").val(); 
-			if(title == "")
-			{
+			if(title == ""){
 				alert($("#title").prop("placeholder"));
 				$("#title").focus();
+				return false;
 			}
-			if(content == "")
-			{
+			if(content == ""){
 				alert($("#content").prop("placeholder"));
 				$("#content").focus();
+				return false;
 			}
 		})
 		//첨부파일 추가 버튼 방법 - 10개 까지 , name에 '파일명+숫자(count)' 붙임

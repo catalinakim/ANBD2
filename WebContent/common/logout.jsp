@@ -6,4 +6,5 @@
 %>
 <script type="text/javascript">
 	location.href="../main/main.jsp"
+	alert("성공적으로 로그아웃 되었습니다");
 </script>

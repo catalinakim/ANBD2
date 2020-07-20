@@ -16,8 +16,7 @@ public class WebUtil
 	{
 		String mValue = mRequest.getParameter(pParam);
 		
-		if(mValue == null)
-		{
+		if(mValue == null){
 			mValue = pDefault;
 		}
 		return mValue;
@@ -28,14 +27,13 @@ public class WebUtil
 		String mValue = _S(pParam,pDefault);
 		
 		//url에 검색어 한글을 %로 바꿔줌(인코딩)
-		try
-		{
-			mValue = URLEncoder.encode(mValue, "UTF-8");
-		}catch(Exception e)
-		{
-			
+		try{
+			//if(mValue != null) { //my 추가
+				mValue = URLEncoder.encode(mValue, "UTF-8");
+			//}
+		}catch(Exception e){
+			System.out.println("_E() 에러:"+e.getMessage());
 		}
-		
 		return mValue;
 	}
 	
@@ -44,15 +42,13 @@ public class WebUtil
 		String mValue = mRequest.getParameter(pParam);
 		int    mInt = 0;
 		
-		if(mValue == null)
-		{
+		if(mValue == null || mValue.equals("")){
 			mValue = pDefault;
 		}
-		try
-		{
+		try{
 			mInt = Integer.parseInt(mValue);
-		}catch(Exception e)
-		{
+		}catch(Exception e){
+			System.out.println("_I() 에러:"+e.getMessage());
 			mInt = 0;
 		}
 		return mInt;

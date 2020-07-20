@@ -25,20 +25,20 @@ webutil.Init(request);
 		 인터넷 탭에 표시되는 아이콘
 		 익스플로어에서는 안보임, 크롬에서 보임
 	-->
-	<link href="../img/anbd favicon.ico" rel="shortcut icon"/>
+	<link href="/anbd2/img/anbd favicon.ico" rel="shortcut icon"/>
 
 	<!-- Google font 글씨체 -->
 	<link href="https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i,900%7cRoboto:400,400i,500,500i,700,700i&display=swap" rel="stylesheet">
 
  	<!-- CSS 총 4개 -->
-	<link rel="stylesheet" href="../css/bootstrap.css"/>
-	<link rel="stylesheet" href="../css/font-awesome.min.css"/>
-	<link rel="stylesheet" href="../css/slicknav.min.css"/>
+	<link rel="stylesheet" href="/anbd2/css/bootstrap.css"/>
+	<link rel="stylesheet" href="/anbd2/css/font-awesome.min.css"/>
+	<link rel="stylesheet" href="/anbd2/css/slicknav.min.css"/>
 
 	<!-- Main CSS -->
-	<link rel="stylesheet" href="../css/style.css"/>
+	<link rel="stylesheet" href="/anbd2/css/style.css"/>
 	
-	<script src="../js/jquery-3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
 	<style>
 	</style>
@@ -47,8 +47,8 @@ webutil.Init(request);
 	<!-- Header Section -->
 	<header class="header-section">
 	    <!-- 로고 -->
-		<a href="../main/main.jsp" class="site-logo">
-			<img src="../img/logo.png" alt="메인로고입니다">
+		<a href="/anbd2/main/main.jsp" class="site-logo">
+			<img src="/anbd2/img/logo.png" alt="메인로고입니다">
 		</a>
 
 		<nav class="header-nav">

@@ -3,12 +3,19 @@ import java.sql.*;
 
 public class DbInfo {
 
-//	String url 			     = "jdbc:mysql://127.0.0.1:3306/anbd?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&autoReconnection=true";
-	String url 			     = "jdbc:mysql://127.0.0.1/anbd?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+//학원
 //	String 			  url 	 = "jdbc:mysql://192.168.0.77/anbd?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
 	String 			  driver = "com.mysql.cj.jdbc.Driver";
 	String 			  id  	 = "kanu";
 	String 			  pw  	 = "1234";
+
+	//집
+//	String 			  url 	 = "jdbc:mysql://127.0.0.1:3307/anbd?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+	String 			  url 	 = "jdbc:mysql://127.0.0.1:3306/anbd?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+//	String 			  driver = "com.mysql.cj.jdbc.Driver";
+//	String 			  id  	 = "root";
+//	String 			  pw  	 = "111111";
+	
 	Statement 		  state  = null; 
 	ResultSet 		  rs	 = null; 
 	Connection 		  con 	 = null; 

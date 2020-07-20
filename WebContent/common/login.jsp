@@ -10,7 +10,7 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<p align="left">아이디</p>
-					<input type="text"  placeholder="아이디를 입력하세요" id="id" name="id" autofocus maxlength="12"/>
+					<input type="text" placeholder="아이디를 입력하세요" id="id" name="id" autofocus maxlength="12"/>
 				</div><!--col-lg-12 클래스 마지막-->
 				
 				<div class="col-lg-12">

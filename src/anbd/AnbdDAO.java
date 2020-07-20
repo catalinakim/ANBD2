@@ -25,6 +25,34 @@ public class AnbdDAO extends DbInfo{
 		return boardList;
 	}
 	
+	public String xssReplaceAll(String xss) 
+	{
+		if(xss != null)
+		{
+			xss = xss.replaceAll("<", "&lt;");
+			xss = xss.replaceAll(">", "&gt;");
+			xss = xss.replaceAll("&", "&amp;");
+			xss = xss.replaceAll("/", "&#x2F;");
+			xss = xss.replaceAll("\"","&quot;");
+			xss = xss.replaceAll("\'","&#x27;");
+		}
+		return xss;
+	}
+	
+	public String viewOnlyXss(String viewXss) 
+	{
+		if(viewXss != null)
+		{
+			viewXss = viewXss.replaceAll("&lt;" , "<");
+			viewXss = viewXss.replaceAll("&gt;" , ">");
+			viewXss = viewXss.replaceAll("&amp;" , "&");
+			viewXss = viewXss.replaceAll("&#x2F;" , "/");
+			viewXss = viewXss.replaceAll("&quot;" , "\"");
+			viewXss = viewXss.replaceAll("&#x27;" , "\'");
+		}
+		return viewXss;
+	}
+	
 	//========회원가입, 로그인 메소드========
 	//회원가입한 회원정보 저장 (insert)
     public int inJoin (AnbdVO db2) {    //가져올 get,set, db에 새로운 변수명
@@ -162,7 +190,6 @@ public class AnbdDAO extends DbInfo{
 		       SQL += "	board AS b LEFT JOIN user AS u ON b.userNo=u.userNo ";
 		       SQL += "WHERE ";
 		       SQL += "	b.no=" + no;
-		
 		//======================== 게시물의 컨텐츠를 얻는 블럭
 		try {
 			getConnection();
@@ -170,6 +197,12 @@ public class AnbdDAO extends DbInfo{
 			executeQuery();
 			
 			if(rs.next()) { //next() 커서가 다음으로 옮기며 처리된다
+				vo.setContent(rs.getString("content"));
+				//XSS 대책 [시작]
+					String content = vo.getContent(); 
+					String viewXss = viewOnlyXss(content);
+					vo.setContent(viewXss);
+				//XSS 대책 [종료]
 				vo.setNo(rs.getInt("no")); 
 				vo.setStatus(rs.getString("status")); 
 				vo.setMenu(rs.getString("menu")); 
@@ -178,7 +211,6 @@ public class AnbdDAO extends DbInfo{
 				vo.setUserNo(rs.getInt("userNo"));
 				vo.setEmail(rs.getString("email"));
 				vo.setTitle(rs.getString("title"));
-				vo.setContent(rs.getString("content"));
 			}
 		}catch (Exception e) {
 			System.out.println("viewBoard 게시물 rs.next() 에러: "+e.getMessage()); 
@@ -224,8 +256,13 @@ public class AnbdDAO extends DbInfo{
 				vo.setCoNo(rs.getInt("coNo"));
 				vo.setId(rs.getString("id"));
 					System.out.println("댓글 작성자: "+vo.getId());
-				vo.setcContent(rs.getString("content"));
-					System.out.println("댓글: "+vo.getcContent());
+				//XSS 대책 [시작]
+					vo.setcContent(rs.getString("content"));
+					String cContent = vo.getcContent(); 
+					String viewXss = viewOnlyXss(cContent);
+					vo.setcContent(viewXss);
+//					System.out.println("댓글: "+vo.getcContent());
+				//XSS 대책 [종료]
 				vo.setWdate(rs.getString("wdate"));
 				
 				vo.setCWriterNo(rs.getInt("userNo"));
@@ -335,6 +372,10 @@ public class AnbdDAO extends DbInfo{
 						photo = "N"; 
 					}
 			}
+			//XSS 대책 [시작]
+				String xssContent = xssReplaceAll(pContent);
+				pContent = xssContent;
+			//XSS 대책 [종료]
 			//글 수정
 			String SQL  = "UPDATE board SET title='"+pTitle+"', ";
 				   SQL += "content='"+pContent+"', ";
@@ -374,6 +415,12 @@ public class AnbdDAO extends DbInfo{
 	}
 
 	public void inSaveComment(AnbdVO vo, int no, int userNo, String content) { //댓글쓰기
+		
+		//XSS 대책 [시작]
+		String xssContent = xssReplaceAll(content);
+		vo.setcContent(xssContent);
+		//XSS 대책 [종료]
+		
 		String SQL  = "INSERT INTO comment (no, userNo, content, wdate) ";
 			   SQL += "values (?, ?, ?, ?);"; 
 		getConnection();
@@ -381,7 +428,7 @@ public class AnbdDAO extends DbInfo{
 		try {
 			pstate.setInt(1, no);  
 			pstate.setInt(2, userNo);
-			pstate.setString(3, content);
+			pstate.setString(3, vo.getcContent());
 			pstate.setString(4, vo.getcWdate()); 
 			System.out.println("댓글쓰기 SQL: "+SQL);
 		} catch (SQLException e) {
@@ -395,6 +442,11 @@ public class AnbdDAO extends DbInfo{
 
 	public void upModifyComment(int coNo, String content) { //댓글수정
 		getConnection();
+		//XSS 대책 [시작]
+			String xssContent = xssReplaceAll(content);
+			content = xssContent;
+		//XSS 대책 [종료]
+
 		String SQL  = "UPDATE comment SET content='"+content+"' where coNo="+coNo;
 		prepareStatement(SQL);
 		executeUpdate(); 
@@ -432,74 +484,55 @@ public class AnbdDAO extends DbInfo{
 	
 	/* ******************************************************
 	 * 
-	 * [메인] 목록 불러오기
+	 * [메인] 공지 불러오기
 	 * 
 	 ****************************************************** */
-	public boolean selBoardList(ArrayList<AnbdVO> blist) 
-	//BoardParam의 정보를 ArrayList 형식으로 담겠다
-	//리스트는 어떤 타입이 올지 모른다 - int를 가져와도 좋고, String을 가져와도 좋다
-	//담고 싶은 내용을 <> 사이에 표현한다
-	//제네릭, 템플릿을 알아보자
-	//boolean으로 한 이유는 try한 결과가 true라면 값을 반환하는 의미
-	//= 검색한 결과를 모두 봐야 하고, 하나의 레코드만 있는 것이 아님 = 
-	//= 반복해야 함 = for 구문 사용하면 좋음 = list를 for 구문으로 받을 수 있음
-	
+	public boolean selNotice() 
 	{	
+		boardList = new ArrayList<AnbdVO>();
 		try 
 		{
-			db.getConnection();
-			db.createStatement();
-			//photo 아직 안 끝남, userNo는 왜 넣었더라...>06.10userNo 지웠음
+			getConnection();
 			
 			String selectSql = "";
-			selectSql += "SELECT no, menu, title, photo, wdate, status, content ";
-			selectSql += "FROM board ";
-			selectSql += "LEFT JOIN juso j ";
-			selectSql += "ON b.jusoNo = j.jusoNo ";
-					selectSql += "ORDER BY no desc ";
+				   selectSql += "SELECT b.no, b.menu, b.status, b.title, b.photo, b.wdate, j.sido, j.sigun \n";
+				   selectSql += "FROM board b \n";
+				   selectSql += "LEFT JOIN juso j \n";
+				   selectSql += "ON b.jusoNo = j.jusoNo \n";
+				   selectSql += "WHERE b.menu='공지' ";
 			System.out.println(selectSql);
-
-			db.rs = db.state.executeQuery(selectSql);
-			if(db.rs.next()) 
+			
+			prepareStatement(selectSql);
+			executeQuery();
+			if(rs.next()) 
 			{
-				do
-				{
-					//BoardParam를 새로 1개만 만들겠어
 					AnbdVO vo = new AnbdVO();
-					
-					//BoardParam boardList = blist.get(i);
-					vo.setNo(db.rs.getInt("no"));
-					vo.setMenu(db.rs.getString("menu"));
-					vo.setTitle(db.rs.getString("title"));
-					vo.setPhoto(db.rs.getString("photo"));
-					vo.setWdate(db.rs.getString("wdate"));
-					vo.setStatus(db.rs.getString("status"));
-					vo.setContent(db.rs.getString("content"));
+					vo.setNo(rs.getInt("no"));
+					vo.setMenu(rs.getString("menu"));
+					vo.setTitle(rs.getString("title"));
+					vo.setPhoto(rs.getString("photo"));
+					vo.setWdate(rs.getString("wdate"));
+					vo.setStatus(rs.getString("status"));
 					vo.setSido(rs.getString("sido"));
 					vo.setSigun(rs.getString("sigun"));
 					
-					//세팅한 no, menu 등의 정보를 blist에 담겠다
-					blist.add(vo);
-						
-				}//do FLOW
-				while(db.rs.next());
-				//do를 실행한 후 while에서 조건을 확인
-				//다음 결과가 있으면 true, do를 다시 실행
-				//다음 결과가 없으면 false, 멈춤
+					boardList.add(vo);
 			}//====if FLOW
-			db.rsClose();
-			db.stateClose();
-			db.conClose();
 		} //=======try FLOW
 		catch (SQLException e) 
 		{
-			System.out.println("목록 select 쿼리 실행 불가");
+			System.out.println("공지 select 쿼리 실행 불가");
 			e.printStackTrace();
 			return false;
 		}
+		finally 
+		{
+			rsClose();
+			stateClose();
+			conClose();
+		}
 		return true;
-		//boolean형이니까 오류가 있으면 false를 반환
-	}//============selectBoard METHOD
+	}//============selNotice METHOD
 	
 	/* ******************************************************
 	 * 
@@ -605,25 +638,38 @@ public class AnbdDAO extends DbInfo{
 				}//if FLOW
 			}//====while FLOW
 		} //=======try FLOW
-		catch (IOException e1) 
+		catch (IOException e) 
 		{
-			e1.printStackTrace();
-			System.out.println("첨부파일 에러" +e1.getMessage());
+			e.printStackTrace();
+			System.out.println("첨부파일 에러" +e.getMessage());
 			return false;
 		}//========catch FLOW
 		
 		//쿼리 구문
 		try 
 		{
-			db.getConnection();
+			getConnection();
 			//==글 insert 시작
 			String menu   = multi.getParameter("menu");
 			String title  = multi.getParameter("title");
+			String sigun  = multi.getParameter("sigun");
+			String sido  = multi.getParameter("sido");
 			String content= multi.getParameter("content");
 			
+			String[] jusoNoArray = sigun.split(":");
+			String jusoNo = jusoNoArray[0];
+			if(sido.equals("기타"))
+			{
+				jusoNo = "251";
+			}
 			vo.setMenu(menu);
 			vo.setTitle(title);
 			vo.setContent(content);
+			vo.setSigun(sigun);
+			if(vo.getSigun().equals("")||vo.getSigun() == null)
+			{
+				vo.setSigun("251");
+			}
 			
 			if(vo.saveName == null)
 			{
@@ -633,39 +679,37 @@ public class AnbdDAO extends DbInfo{
 			{
 				vo.setPhoto("Y");
 			}
+			
+			//XSS 대책 [시작]
+			String xssContent = xssReplaceAll(content);
+			vo.setContent(xssContent);
+			//XSS 대책 [종료]
+			
 			String insertBoardSql  = "INSERT INTO board ";
-				   insertBoardSql += "(menu, title, content, userNo, wdate, photo) ";
-				   insertBoardSql += "VALUES (?, ?, ?, ?, curdate(), ?)";
+				   insertBoardSql += "(menu, title, content, userNo, wdate, photo, jusoNo) ";
+				   insertBoardSql += "VALUES (?, ?, ?, ?, curdate(), ?, ?)";
+
+			prepareStatement(insertBoardSql);
 			
-			db.pstate = db.con.prepareStatement(insertBoardSql);
-			
-			db.pstate.setString(1, menu);
-			db.pstate.setString(2, title);
-			db.pstate.setString(3, content);
-			db.pstate.setInt(4, userNo);
-			db.pstate.setString(5, vo.getPhoto());
+			pstate.setString(1, menu);
+			pstate.setString(2, title);
+			pstate.setString(3, vo.getContent());
+			pstate.setInt(4, userNo);
+			pstate.setString(5, vo.getPhoto());
+			pstate.setString(6, jusoNo);
 
 			System.out.println(insertBoardSql);
 			System.out.println("saveName = "+vo.saveName);
 			System.out.println("SaveFileName = "+vo.SaveFileName);
 			System.out.println("vo.SaveFileName.size() = "+vo.SaveFileName.size());
 			
-			db.pstate.executeUpdate();
+			executeUpdate();
 			
 			//==글 insert 종료
 			
 			//==글 번호 구하기 시작
-			int a;
-			String selectBoardNoSql = "SELECT LAST_INSERT_ID() as insertNo ";
-			db.state = db.con.createStatement();
-			
-			db.rs = db.state.executeQuery(selectBoardNoSql);
-			while(db.rs.next()) 
-			{
-				a = db.rs.getInt("insertNo");
-				vo.setNo(a);
-			}//====while FLOW
-			db.rsClose();
+			int insertNo = selLastInsert();
+			vo.setNo(insertNo);
 			//==글 번호 구하기 종료
 			
 			//==파일 insert 시작
@@ -684,15 +728,13 @@ public class AnbdDAO extends DbInfo{
 					String insertFileSql  = "INSERT INTO file ";
 					insertFileSql += "(saveFileName, no) ";
 					insertFileSql += "VALUES (?, ?)"; 
-					db.pstate = db.con.prepareStatement(insertFileSql);
-					db.pstate.setString(1, vo.getSaveName(i));
-					db.pstate.setInt(2, vo.getNo());
-					db.pstate.executeUpdate();
+					prepareStatement(insertFileSql);
+					pstate.setString(1, vo.getSaveName(i));
+					pstate.setInt(2, vo.getNo());
+					executeUpdate();
 					System.out.println(insertFileSql);
 				}//for FLOW
 			}//====if FLOW == 파일 insert 종료
-			db.pstateClose();
-			db.conClose();
 		}//====try FLOW
 		catch (SQLException e) 
 		{
@@ -700,6 +742,11 @@ public class AnbdDAO extends DbInfo{
 			e.printStackTrace();
 			return false;
 		}//===catch FLOW
+		finally 
+		{
+			pstateClose();		
+			conClose();	
+		}
 		return true;
 	}//====insertWriteQuery METHOD
 	
@@ -884,7 +931,7 @@ public class AnbdDAO extends DbInfo{
 	 * @date   2020-06-29 작성
 	 * 글쓰기 주소 가져오기 [시작]
 	 * 
-s	 ****************************************************** */
+	 ****************************************************** */
 	public boolean selJuso() 
 	{
 		boardList = new ArrayList<AnbdVO>();
@@ -894,7 +941,7 @@ s	 ****************************************************** */
 			String selSidoSql =  "";
 				   selSidoSql += "SELECT distinct sido \n";
 				   selSidoSql += "FROM juso \n";
-				   selSidoSql += "ORDER BY jusoNo asc \n";
+				   selSidoSql += "ORDER BY jusoNo asc ";
 			prepareStatement(selSidoSql);
 			System.out.println(selSidoSql);
 			executeQuery();
@@ -910,7 +957,6 @@ s	 ****************************************************** */
 				}
 				while(rs.next());
 			}//if FLOW
-			System.out.println("=============selJuso 실행 완료=============");
 		}//====try FLOW
 		catch(Exception e)
 		{
@@ -933,7 +979,7 @@ s	 ****************************************************** */
 	 * @date   2020-06-29 작성
 	 * 글쓰기 주소 > 시/군/구 가져오기 [시작]
 	 * 
-s	 ****************************************************** */
+	 ****************************************************** */
 	
 	public boolean selSigun(String sido) 
 	{
@@ -942,10 +988,10 @@ s	 ****************************************************** */
 		{
 			getConnection();
 			String selSigunSql =  "";
-				   selSigunSql += "SELECT sido, sigun \n";
+				   selSigunSql += "SELECT sido, sigun, jusoNo \n";
 				   selSigunSql += "FROM juso \n";
 				   selSigunSql += "WHERE sido = ? \n";
-				   selSigunSql += "ORDER BY jusoNo asc \n";
+				   selSigunSql += "ORDER BY jusoNo asc ";
 			prepareStatement(selSigunSql);
 			pstate.setString(1, sido);
 			System.out.println(selSigunSql);
@@ -958,12 +1004,12 @@ s	 ****************************************************** */
 					
 					vo.setSigun(rs.getString("sigun"));
 					vo.setSido(rs.getString("sido"));
+					vo.setJusoNo(rs.getInt("jusoNo"));
 					
 					boardList.add(vo);
 				}
 				while(rs.next());
 			}//if FLOW
-			System.out.println("=============selSigun 실행 완료=============");
 		}//====try FLOW
 		catch(Exception e)
 		{
@@ -979,5 +1025,34 @@ s	 ****************************************************** */
 		return true;
 	}
 	
+	/* ******************************************************
+	 * 
+	 * @author 정도희
+	 * @brif   마지막으로 인서트한 no 구하기
+	 * @date   2020-07-06 작성
+	 * 마지막 인서트 [시작]
+	 * 
+	 ****************************************************** */
+	public int selLastInsert() 
+	{
+		int a = 0;
+		try 
+		{
+			String selSQL = "SELECT LAST_INSERT_ID() as insertNo";
+			prepareStatement(selSQL);
+			executeQuery();
+			while(rs.next()) 
+			{
+				a = rs.getInt("insertNo");
+				vo.setNo(a);
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println("마지막으로 인서트한 번호를 찾을 수 없음");
+			e.printStackTrace();
+		}
+		return a; 
+	}
 	
 }

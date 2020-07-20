@@ -58,6 +58,7 @@ public class AnbdVO {
 	protected String sigun   = "";
 	protected String sido    = "";
 	protected String juso    = "";
+	protected int    jusoNo  = 0;
 	
 	/* ******************************************************
 	 * 정규화 [시작]
@@ -395,5 +396,12 @@ public class AnbdVO {
 	public void setJuso(String juso) 
 	{
 		this.juso = juso;
+	}
+	//주소 번호
+	public int getJusoNo() {
+		return jusoNo;
+	}
+	public void setJusoNo(int jusoNo) {
+		this.jusoNo = jusoNo;
 	}
 }

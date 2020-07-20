@@ -30,7 +30,7 @@
 <body>
 	<% 
 	CaptchaKey capKey = new CaptchaKey();
-	capKey.main(args)
+	//capKey.main(args);
 	%>
 	<form>
 			<img width="300px" height="60px" src="" />
